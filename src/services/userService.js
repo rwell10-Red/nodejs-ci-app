@@ -32,4 +32,10 @@ const reset = () => {
   nextId = 3;
 };
 
-module.exports = { getAllUsers, getUserById, createUser, deleteUser, reset };
+module.exports = {
+  getAllUsers,
+  getUserById,
+  createUser,
+  deleteUser,
+  reset,
+};
