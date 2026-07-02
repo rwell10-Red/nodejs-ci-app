@@ -47,7 +47,7 @@ curl http://localhost:3000/api/users
 # Create a user
 curl -X POST http://localhost:3000/api/users \
   -H "Content-Type: application/json" \
-  -d '{"name":"Carol","email":"carol@example.com"}'
+  -d '{"name":"Andre","email":"andre.rockwell@techconsulting.tech"}'
 
 # Delete a user
 curl -X DELETE http://localhost:3000/api/users/1
