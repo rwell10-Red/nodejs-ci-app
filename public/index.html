@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Manager</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      padding: 2rem;
+    }
+
+    .container { max-width: 600px; margin: 0 auto; }
+
+    h1 { font-size: 1.8rem; margin-bottom: 2rem; color: #16213e; }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .form-row { display: flex; gap: 0.75rem; }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 0.65rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus { border-color: #0f3460; }
+
+    button {
+      padding: 0.65rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button:hover { opacity: 0.8; }
+
+    .btn-primary { background: #0f3460; color: white; }
+    .btn-complete { background: #27ae60; color: white; font-size: 0.8rem; padding: 0.4rem 0.8rem; }
+    .btn-delete { background: #e74c3c; color: white; font-size: 0.8rem; padding: 0.4rem 0.8rem; }
+
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+
+    .tab {
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      background: white;
+      color: #555;
+    }
+
+    .tab.active { background: #0f3460; color: white; border-color: #0f3460; }
+
+    ul { list-style: none; }
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f0f0f0;
+      gap: 1rem;
+    }
+
+    li:last-child { border-bottom: none; }
+
+    .task-title { flex: 1; font-size: 0.95rem; }
+    .task-title.done { text-decoration: line-through; color: #aaa; }
+
+    .actions { display: flex; gap: 0.4rem; }
+
+    .empty { text-align: center; color: #aaa; padding: 1.5rem; font-size: 0.9rem; }
+
+    .stats {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+
+    .stats span { font-weight: 600; color: #0f3460; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Task Manager</h1>
+
+    <!-- Add task -->
+    <div class="card">
+      <div class="form-row">
+        <input type="text" id="task-input" placeholder="Add a new task..." />
+        <button class="btn-primary" onclick="addTask()">Add</button>
+      </div>
+    </div>
+
+    <!-- Task list -->
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" onclick="setFilter('all', this)">All</button>
+        <button class="tab" onclick="setFilter('pending', this)">Pending</button>
+        <button class="tab" onclick="setFilter('completed', this)">Completed</button>
+      </div>
+
+      <ul id="task-list"></ul>
+
+      <div class="stats">
+        Total: <span id="stat-total">0</span>
+        &nbsp;|&nbsp; Pending: <span id="stat-pending">0</span>
+        &nbsp;|&nbsp; Completed: <span id="stat-completed">0</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+    let nextId = parseInt(localStorage.getItem('nextId') || '1', 10);
+    let filter = 'all';
+
+    function save() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      localStorage.setItem('nextId', nextId);
+    }
+
+    function addTask() {
+      const input = document.getElementById('task-input');
+      const title = input.value.trim();
+      if (!title) { input.focus(); return; }
+      tasks.push({ id: nextId, title, completed: false });
+      nextId++;
+      input.value = '';
+      save();
+      render();
+    }
+
+    function completeTask(id) {
+      const task = tasks.find(t => t.id === id);
+      if (task) { task.completed = true; save(); render(); }
+    }
+
+    function deleteTask(id) {
+      tasks = tasks.filter(t => t.id !== id);
+      save();
+      render();
+    }
+
+    function setFilter(f, el) {
+      filter = f;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      render();
+    }
+
+    function render() {
+      const list = document.getElementById('task-list');
+      let visible = tasks;
+      if (filter === 'pending') visible = tasks.filter(t => !t.completed);
+      if (filter === 'completed') visible = tasks.filter(t => t.completed);
+
+      if (visible.length === 0) {
+        list.innerHTML = `<li><div class="empty">No tasks here.</div></li>`;
+      } else {
+        list.innerHTML = visible.map(t => `
+          <li>
+            <span class="task-title ${t.completed ? 'done' : ''}">${t.title}</span>
+            <div class="actions">
+              ${!t.completed ? `<button class="btn-complete" onclick="completeTask(${t.id})">Done</button>` : ''}
+              <button class="btn-delete" onclick="deleteTask(${t.id})">Delete</button>
+            </div>
+          </li>
+        `).join('');
+      }
+
+      document.getElementById('stat-total').textContent = tasks.length;
+      document.getElementById('stat-pending').textContent = tasks.filter(t => !t.completed).length;
+      document.getElementById('stat-completed').textContent = tasks.filter(t => t.completed).length;
+    }
+
+    // Add task on Enter key
+    document.getElementById('task-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addTask();
+    });
+
+    render();
+  </script>
+</body>
+</html>

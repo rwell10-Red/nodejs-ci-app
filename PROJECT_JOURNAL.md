@@ -348,3 +348,109 @@ Pipeline fully operational.
 - **Tests:** 14 passing, 95%+ coverage
 - **Dev server:** http://localhost:3000
 - **Endpoints:** GET /health, GET /api/users, GET /api/users/:id, POST /api/users, DELETE /api/users/:id
+
+---
+
+## Step 16 — Set Up Branch Protection
+
+### What we will do
+Configure branch protection rules on `main` and `develop` in GitHub so that:
+- Pull requests are required before merging
+- The CI pipeline (Lint + Test) must pass before a PR can merge
+- At least 1 approval is required
+- Branches must be up to date before merging
+- Force pushes and deletions are blocked
+
+### Why
+Without branch protection, CI is informational only — anyone can merge broken code directly
+into main. Branch protection makes CI a hard gate. It also enforces the PR review workflow
+so no code bypasses review.
+
+### How
+```cmd
+gh api repos/rwell10-Red/nodejs-ci-app/branches/main/protection \
+  --method PUT \
+  --field required_status_checks='{"strict":true,"contexts":["Lint","Test"]}' \
+  --field enforce_admins=true \
+  --field required_pull_request_reviews='{"required_approving_review_count":1}' \
+  --field restrictions=null
+```
+
+### Status: Pending
+
+---
+
+## Step 17 — Create a Feature Branch and Test PR Review Workflow
+
+### What we will do
+- Create a feature branch from main
+- Make a small code change
+- Push the branch
+- Open a PR against main
+- Watch CI run on the PR
+- Review and merge
+
+### Why
+The PR template, CI pipeline, and branch strategy are all in place but untested end to end.
+Walking through a real PR confirms everything works together and establishes the workflow pattern.
+
+### How
+```cmd
+git checkout -b feature/add-user-update-endpoint
+# make changes
+git add .
+git commit -m "feat: add PUT /api/users/:id endpoint"
+git push -u origin feature/add-user-update-endpoint
+gh pr create --title "feat: add user update endpoint" --body "Adds PUT /api/users/:id"
+```
+
+### Status: Pending
+
+---
+
+## Step 18 — Add a Database (MongoDB or PostgreSQL)
+
+### What we will do
+Replace the in-memory user store in `userService.js` with a real database.
+Options:
+- **MongoDB** with Mongoose — document-based, flexible schema, easier to start with
+- **PostgreSQL** with Prisma — relational, strongly typed, better for structured data
+
+### Why
+The in-memory store resets every time the server restarts. Any users created are lost.
+A real database makes the app persistent and production-ready.
+
+### How (MongoDB example)
+```cmd
+npm install mongoose
+```
+- Connect in `src/app.js` using `mongoose.connect(process.env.MONGO_URI)`
+- Replace array operations in `userService.js` with Mongoose model methods
+- Add `MONGO_URI` to `.env` and `.env.example`
+
+### Status: Pending
+
+---
+
+## Step 19 — Add Authentication (JWT)
+
+### What we will do
+Add JWT-based authentication to protect the API:
+- `POST /api/auth/register` — create an account
+- `POST /api/auth/login` — returns a signed JWT token
+- Protect mutating routes (POST, DELETE) with an auth middleware that validates the token
+
+### Why
+Without authentication, anyone can call `DELETE /api/users/1` and wipe data with no credentials.
+JWT auth adds identity and access control — a baseline requirement for any real API.
+
+### How
+```cmd
+npm install jsonwebtoken bcryptjs
+```
+- Create `src/middleware/auth.js` — verifies JWT from Authorization header
+- Create `src/routes/auth.js` — register and login endpoints
+- Apply middleware to protected routes
+- Add `JWT_SECRET` to `.env` and `.env.example`
+
+### Status: Pending
