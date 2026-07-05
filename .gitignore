@@ -6,4 +6,5 @@ dist/
 *.docx
 PRESENTATION.md
 CI_EXPLANATION.md
-.eslintrc.js
+PROJECT_JOURNAL.md
+CONVERSATION_LOG.md
