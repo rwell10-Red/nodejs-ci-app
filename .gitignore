@@ -4,3 +4,6 @@ coverage/
 dist/
 *.log
 *.docx
+PRESENTATION.md
+CI_EXPLANATION.md
+.eslintrc.js
