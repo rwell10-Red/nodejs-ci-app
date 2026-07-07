@@ -4,7 +4,9 @@ coverage/
 dist/
 *.log
 *.docx
+*.pptx
 PRESENTATION.md
 CI_EXPLANATION.md
 PROJECT_JOURNAL.md
 CONVERSATION_LOG.md
+.github/workflows/release.yml
