@@ -1,5 +1,7 @@
 # nodejs-ci-app
 
+![CI](https://github.com/rwell10-Red/nodejs-ci-app/actions/workflows/ci.yml/badge.svg)
+
 A Node.js Express REST API with a full GitHub Actions CI pipeline, feature branching, PR reviews, and Jest testing.
 
 ## Prerequisites
