@@ -4,6 +4,16 @@
 
 A Node.js Express REST API with a full GitHub Actions CI pipeline, feature branching, PR reviews, and Jest testing.
 
+## Tooling & engineering practices
+
+This project is less about the API and more about demonstrating a **professional
+delivery pipeline**:
+
+- **CI:** GitHub Actions runs lint + tests on every push and PR, across a **Node 18 / 20 / 22 matrix**
+- **Quality gates:** ESLint (airbnb-base) + Prettier; Jest with an **80% coverage threshold**
+- **Workflow:** Git Flow branching, Pull Requests with required review, and documented **branch-protection rules** (see [CONTRIBUTING.md](./CONTRIBUTING.md))
+- **Releases:** triggered by pushing a semver tag (`v*.*.*`)
+
 ## Prerequisites
 
 - Node.js 18+
